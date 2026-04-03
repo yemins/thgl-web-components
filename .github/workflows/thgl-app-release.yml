@@ -1,0 +1,72 @@
+name: THGL App - Build & Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Build variant'
+        required: true
+        default: 'adfree'
+        type: choice
+        options:
+          - adfree
+          - standard
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v2
+      
+      - name: Install dependencies
+        run: bun install
+      
+      - name: Build THGL App (${{ inputs.variant }})
+        working-directory: apps/thgl-app
+        run: |
+          if [ "${{ inputs.variant }}" = "adfree" ]; then
+            NEXT_PUBLIC_BUILD_VARIANT=adfree NEXT_PUBLIC_ADS_ENABLED=false bun run build
+          else
+            NEXT_PUBLIC_BUILD_VARIANT=standard NEXT_PUBLIC_ADS_ENABLED=true bun run build
+          fi
+      
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thgl-app-${{ inputs.variant }}-${{ github.run_number }}
+          path: apps/thgl-app/.next/
+          retention-days: 7
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: thgl-app-${{ inputs.variant }}-${{ github.run_number }}
+          name: THGL App - ${{ inputs.variant }} (Build #${{ github.run_number }})
+          body: |
+            # THGL Companion App - ${{ inputs.variant }} Variant
+            
+            **Build:** ${{ github.run_number }}
+            **Variant:** ${{ inputs.variant }}
+            **Created:** ${{ github.event.head_commit.timestamp }}
+            
+            ## Details
+            ${{ inputs.variant == 'adfree' && '✅ **No Advertisements**
+            ✅ Ad-Free Experience (Patreon Equivalent)
+            ✅ All Features Included' || '📺 **Full Ad Integration**
+            💰 Supports Development
+            🎮 Standard Public Release' }}
+            
+            ## Download
+            The build artifact is attached as a compressed file containing the compiled `.next/` directory.
+            
+            Extract and use with your build system to create the final EXE.
+            
+            ---
+            *Built with GitHub Actions*
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
