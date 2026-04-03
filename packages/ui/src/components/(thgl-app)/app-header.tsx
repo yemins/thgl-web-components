@@ -27,7 +27,7 @@ import { Textarea } from "../ui/textarea";
 import { Separator } from "../ui/separator";
 import { ScriptLoader } from "../(ads)/nitro-script";
 import ConsentLink from "../(ads)/consent-link";
-
+const shouldIncludeAds = process.env.NEXT_PUBLIC_BUILD_VARIANT !== 'adfree';
 export function AppHeader({
   title,
   children,
@@ -303,9 +303,11 @@ export function AppHeader({
                 Privacy Policy
                 <ExternalLinkIcon className="w-2.5 h-2.5 opacity-40" />
               </ExternalAnchor>
-              <ScriptLoader>
-                <ConsentLink />
-              </ScriptLoader>
+{shouldIncludeAds && (
+  <ScriptLoader>
+    <ConsentLink />
+  </ScriptLoader>
+)}
             </div>
           </div>
         </>
