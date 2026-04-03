@@ -15,58 +15,101 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - uses: oven-sh/setup-bun@v2
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
       
-      - name: Build THGL App (${{ inputs.variant }})
-        working-directory: apps/thgl-app
+      - name: Typecheck
+        run: bun run typecheck
+      
+      - name: Build THGL App - ${{ inputs.variant }}
         run: |
+          cd apps/thgl-app
           if [ "${{ inputs.variant }}" = "adfree" ]; then
             NEXT_PUBLIC_BUILD_VARIANT=adfree NEXT_PUBLIC_ADS_ENABLED=false bun run build
           else
             NEXT_PUBLIC_BUILD_VARIANT=standard NEXT_PUBLIC_ADS_ENABLED=true bun run build
           fi
+        env:
+          NODE_ENV: production
+      
+      - name: Check build output
+        run: |
+          ls -la apps/thgl-app/.next/
+          echo "Build completed successfully"
       
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: thgl-app-${{ inputs.variant }}-${{ github.run_number }}
+          name: thgl-app-${{ inputs.variant }}-build-${{ github.run_number }}
           path: apps/thgl-app/.next/
           retention-days: 7
+          if-no-files-found: error
       
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: thgl-app-${{ inputs.variant }}-${{ github.run_number }}
-          name: THGL App - ${{ inputs.variant }} (Build #${{ github.run_number }})
+          name: "THGL App - ${{ inputs.variant }} (Build #${{ github.run_number }})"
           body: |
             # THGL Companion App - ${{ inputs.variant }} Variant
             
-            **Build:** ${{ github.run_number }}
+            **Build Number:** ${{ github.run_number }}
             **Variant:** ${{ inputs.variant }}
-            **Created:** ${{ github.event.head_commit.timestamp }}
+            **Status:** ✅ Build Successful
             
-            ## Details
-            ${{ inputs.variant == 'adfree' && '✅ **No Advertisements**
-            ✅ Ad-Free Experience (Patreon Equivalent)
-            ✅ All Features Included' || '📺 **Full Ad Integration**
-            💰 Supports Development
-            🎮 Standard Public Release' }}
+            ## Features
+            ${{ inputs.variant == 'adfree' && '✅ No Advertisements
+            ✅ Ad-Free Experience
+            ✅ Equivalent to Patreon Version
+            ✅ All Features Included' || '📺 Full NitroPay Ad Integration
+            💰 Monetized Build
+            🎮 Standard Public Release
+            📊 Ad Revenue Enabled' }}
             
-            ## Download
-            The build artifact is attached as a compressed file containing the compiled `.next/` directory.
+            ## Build Details
+            - **Framework:** Next.js 15
+            - **Runtime:** Bun
+            - **Build Variant:** `${{ inputs.variant }}`
+            - **Ads Enabled:** `${{ inputs.variant == 'standard' }}`
+            - **Output:** Next.js compiled build (`.next/` directory)
             
-            Extract and use with your build system to create the final EXE.
+            ## What You Get
+            The artifact contains the complete compiled Next.js application ready for:
+            - Local testing
+            - EXE packaging (Tauri, Electron, etc.)
+            - Docker deployment
+            - Any other deployment method
+            
+            ## Download & Extract
+            1. Download the artifact from the workflow run
+            2. Extract the `.zip` file
+            3. You'll have the complete `.next/` directory
+            4. Use with your build system to create the final EXE
+            
+            ## Next Steps
+            - 🧪 Test the build locally
+            - 📦 Package into EXE using your preferred tool
+            - 🚀 Deploy to users
             
             ---
-            *Built with GitHub Actions*
+            
+            **Built with:** GitHub Actions + Bun + Next.js
+            **Support:** [Discord](https://th.gl/discord) | [Patreon](https://www.th.gl/support-me)
           draft: false
-          prerelease: false
+          prerelease: ${{ inputs.variant != 'standard' }}
           generate_release_notes: false
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
