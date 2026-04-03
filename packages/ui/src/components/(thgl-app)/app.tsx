@@ -304,7 +304,9 @@ export function App({
         </TooltipProvider>
       </I18NProvider>
       {!isOverlay && <ResizeBorders />}
-      <THGLMapAds isOverlay={isOverlay} appConfig={appConfig} />
+     {process.env.NEXT_PUBLIC_BUILD_VARIANT !== 'adfree' && (
+  <THGLMapAds isOverlay={isOverlay} appConfig={appConfig} />
+)}
       <Toaster />
     </div>
   );
