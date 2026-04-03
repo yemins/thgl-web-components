@@ -17,7 +17,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Lint**: `bun run lint`
 - **Clean**: `bun run clean`
 - **Update dependencies**: `bun run update-deps`
-
+### THGL App Build Variants
+- **Ad-Free**: `cd apps/thgl-app && NEXT_PUBLIC_BUILD_VARIANT=adfree NEXT_PUBLIC_ADS_ENABLED=false bun run build`
+- **Standard**: `cd apps/thgl-app && NEXT_PUBLIC_BUILD_VARIANT=standard NEXT_PUBLIC_ADS_ENABLED=true bun run build`
+- **GitHub Actions**: Go to Actions → THGL App - Build & Release → Run workflow
 ### Testing
 No test framework is configured - the project relies on TypeScript, linting, and formatting for code quality.
 
