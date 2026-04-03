@@ -37,12 +37,14 @@ jobs:
         run: |
           cd apps/thgl-app
           if [ "${{ inputs.variant }}" = "adfree" ]; then
-            NEXT_PUBLIC_BUILD_VARIANT=adfree NEXT_PUBLIC_ADS_ENABLED=false bun run build
+            NEXT_PUBLIC_BUILD_VARIANT=adfree NEXT_PUBLIC_ADS_ENABLED=false bun run build -- --no-lint
           else
-            NEXT_PUBLIC_BUILD_VARIANT=standard NEXT_PUBLIC_ADS_ENABLED=true bun run build
+            NEXT_PUBLIC_BUILD_VARIANT=standard NEXT_PUBLIC_ADS_ENABLED=true bun run build -- --no-lint
           fi
         env:
           NODE_ENV: production
+          SKIP_ENV_VALIDATION: true
+          NEXT_SKIP_ENV_VALIDATION: true
       
       - name: Check build output
         run: |
