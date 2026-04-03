@@ -4,16 +4,17 @@
   "private": true,
   "browserslist": [
     "chrome >= 91"
-"scripts": {
-  "build": "next build",
-  "build:adfree": "NEXT_PUBLIC_BUILD_VARIANT=adfree NEXT_PUBLIC_ADS_ENABLED=false next build",
-  "build:standard": "NEXT_PUBLIC_BUILD_VARIANT=standard NEXT_PUBLIC_ADS_ENABLED=true next build",
-  "clean": "rimraf .next node_modules",
-  "dev": "next dev -p 41000 --turbopack",
-  "lint": "next lint",
-  "typecheck": "tsc --noEmit",
-  "start": "next start"
-},
+  ],
+  "scripts": {
+    "build": "next build",
+    "build:adfree": "NEXT_PUBLIC_BUILD_VARIANT=adfree NEXT_PUBLIC_ADS_ENABLED=false next build",
+    "build:standard": "NEXT_PUBLIC_BUILD_VARIANT=standard NEXT_PUBLIC_ADS_ENABLED=true next build",
+    "clean": "rimraf .next node_modules",
+    "dev": "next dev -p 41000 --turbopack",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "start": "next start"
+  },
   "dependencies": {
     "@repo/lib": "workspace:*",
     "@repo/ui": "workspace:*",
